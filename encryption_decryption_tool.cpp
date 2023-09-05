@@ -5,7 +5,6 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
-
 using std::string;
 using std::ifstream;
 using std::ofstream;
@@ -13,168 +12,145 @@ using std::ios;
 
 class File
 {
-    public:
-        string action; 
-        string type;
-        string input_file;
-        string output_file;
+public:
+    string action;
+    string type;
+    string input_file;
+    string output_file;
 
     void XOR_encrypt_decrypt(char key)
     {
         ifstream inputFileStream(input_file, ios::binary);
         ofstream outputFileStream(output_file, ios::binary);
-        if(!inputFileStream || !outputFileStream)
+
+        if (!inputFileStream || !outputFileStream)
         {
-            std::cerr << "Failed to open files!" << std::endl;
+            handleError("Failed to open files!");
             return;
         }
 
         char byte;
-        while(inputFileStream.get(byte))
-        // flipping bits between byte and key value - bitwise operation
+        while (inputFileStream.get(byte))
         {
             byte ^= key;
             outputFileStream.put(byte);
         }
 
-        inputFileStream.close();
-        outputFileStream.close();
-
+        closeStreams(inputFileStream, outputFileStream);
     }
 
     void AES_encrypt(string key)
     {
-        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
-        // context validation
-        if (!ctx) {
-            std::cerr << "Failed to create EVP context." << std::endl;
-            return;
-        }
-        // conversion to array of pointers (cstring) - null terminated
-        const unsigned char* encryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
+        EVP_CIPHER_CTX* ctx = createEVPContext(key, true);
 
-        // initialisiing encryption and checking if it is successful - if not, clearing memory
-        if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, encryption_key, NULL) != 1) {
-            std::cerr << "Failed to initialize AES encryption." << std::endl;
-            EVP_CIPHER_CTX_free(ctx);
-            return;
-        }
-
-        // reading files in in and out strea,
         ifstream inputFileStream(input_file, ios::binary);
         ofstream outputFileStream(output_file, ios::binary);
 
-        // validation if streaming has been successful
-        if (!inputFileStream || !outputFileStream) {
-            std::cerr << "Failed to open files!" << std::endl;
-            EVP_CIPHER_CTX_free(ctx);
+        if (!inputFileStream || !outputFileStream || !ctx)
+        {
+            handleError("Failed to initialize AES encryption.");
             return;
         }
 
-        // arrays creation size - 1024 - each of item may hold 8 bit value
-        unsigned char inBuf[1024];
-        unsigned char outBuf[1024];
-        int bytesRead;
-        int encryptedBytes;
+        processAES(inputFileStream, outputFileStream, ctx);
 
-        // reading input file stream, encrypting it into outBuf
-        while ((bytesRead = inputFileStream.readsome(reinterpret_cast<char*>(inBuf), sizeof(inBuf)))) {
-            if (EVP_EncryptUpdate(ctx, outBuf, &encryptedBytes, inBuf, bytesRead) != 1) {
-                std::cerr << "Failed to perform AES encryption." << std::endl;
-                EVP_CIPHER_CTX_free(ctx);
-                return;
-            }
-            outputFileStream.write(reinterpret_cast<char*>(outBuf), encryptedBytes);
-        }
-
-        // finalising encryption 
-        if (EVP_EncryptFinal_ex(ctx, outBuf, &encryptedBytes) != 1) {
-            std::cerr << "Failed to finalize AES encryption." << std::endl;
-            EVP_CIPHER_CTX_free(ctx);
-            return;
-        }
-
-        // writing into outBuf finished encrypted bytes
-        outputFileStream.write(reinterpret_cast<char*>(outBuf), encryptedBytes);
-
-        // freeing up the memory
-        EVP_CIPHER_CTX_free(ctx);
-
-
-        // closing off the streams
-        inputFileStream.close();
-        outputFileStream.close();
-
+        closeStreams(inputFileStream, outputFileStream);
+        cleanupEVPContext(ctx);
     }
 
     void AES_decrypt(string key)
     {
-        // context validation
-        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
-        if (!ctx) {
-            std::cerr << "Failed to create EVP context." << std::endl;
-            return;
-        }
+        EVP_CIPHER_CTX* ctx = createEVPContext(key, false);
 
-        // conversion to array of pointers
-        const unsigned char* decryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
-
-         // initialisiing encryption and checking if it is successful - if not, clearing memory
-        if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, decryption_key, NULL) != 1) {
-            std::cerr << "Failed to initialize AES decryption." << std::endl;
-            EVP_CIPHER_CTX_free(ctx);
-            return;
-        }
-
-        // creating input and output streams
         ifstream inputFileStream(input_file, ios::binary);
         ofstream outputFileStream(output_file, ios::binary);
 
-        // checking if input stream could be created
-        if (!inputFileStream || !outputFileStream) {
-            std::cerr << "Failed to open files!" << std::endl;
-            EVP_CIPHER_CTX_free(ctx);
+        if (!inputFileStream || !outputFileStream || !ctx)
+        {
+            handleError("Failed to initialize AES decryption.");
             return;
         }
 
-        unsigned char inBuf[1024];
-        unsigned char outBuf[1024];
-        int bytesRead;
-        int decryptedBytes;
+        processAES(inputFileStream, outputFileStream, ctx);
 
-        // reading and decrypting in buffer into out buffer
-        while ((bytesRead = inputFileStream.readsome(reinterpret_cast<char*>(inBuf), sizeof(inBuf)))) {
-            if (EVP_DecryptUpdate(ctx, outBuf, &decryptedBytes, inBuf, bytesRead) != 1) {
-                std::cerr << "Failed to perform AES decryption." << std::endl;
-                EVP_CIPHER_CTX_free(ctx);
-                return;
-            }
-            outputFileStream.write(reinterpret_cast<char*>(outBuf), decryptedBytes);
-        }
-
-        // performing final decryption in outBuf
-        if (EVP_DecryptFinal_ex(ctx, outBuf, &decryptedBytes) != 1) {
-            std::cerr << "Failed to finalize AES decryption." << std::endl;
-            EVP_CIPHER_CTX_free(ctx);
-            return;
-        }
-
-        // converting binary to a set of char pointers and writing it to outputFileStream
-        outputFileStream.write(reinterpret_cast<char*>(outBuf), decryptedBytes);
-
-        // clearing up the memory
-        EVP_CIPHER_CTX_free(ctx);
-
-        // closing off streams
-        inputFileStream.close();
-        outputFileStream.close();
+        closeStreams(inputFileStream, outputFileStream);
+        cleanupEVPContext(ctx);
     }
 
+private:
+    static const int bufferSize = 1024;
 
+    void handleError(const string& errorMsg)
+    {
+        std::cerr << errorMsg << std::endl;
+    }
+
+    EVP_CIPHER_CTX* createEVPContext(const string& key, bool isEncrypt)
+    {
+        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+        if (!ctx)
+        {
+            handleError("Failed to create EVP context.");
+            return nullptr;
+        }
+
+        const unsigned char* encryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
+        const EVP_CIPHER* cipherType = isEncrypt ? EVP_aes_256_cbc() : EVP_aes_256_cbc();
+
+        if (EVP_CipherInit_ex(ctx, cipherType, nullptr, encryption_key, nullptr, isEncrypt ? 1 : 0) != 1)
+        {
+            handleError(isEncrypt ? "Failed to initialize AES encryption." : "Failed to initialize AES decryption.");
+            cleanupEVPContext(ctx);
+            return nullptr;
+        }
+
+        return ctx;
+    }
+
+    void processAES(ifstream& input, ofstream& output, EVP_CIPHER_CTX* ctx)
+    {
+        unsigned char inBuf[bufferSize];
+        unsigned char outBuf[bufferSize];
+        int bytesRead;
+        int processedBytes;
+
+        while ((bytesRead = input.readsome(reinterpret_cast<char*>(inBuf), sizeof(inBuf))))
+        {
+            if (EVP_CipherUpdate(ctx, outBuf, &processedBytes, inBuf, bytesRead) != 1)
+            {
+                handleError("Failed to perform AES operation.");
+                cleanupEVPContext(ctx);
+                return;
+            }
+            output.write(reinterpret_cast<char*>(outBuf), processedBytes);
+        }
+
+        if (EVP_CipherFinal_ex(ctx, outBuf, &processedBytes) != 1)
+        {
+            handleError("Failed to finalize AES operation.");
+            cleanupEVPContext(ctx);
+            return;
+        }
+
+        output.write(reinterpret_cast<char*>(outBuf), processedBytes);
+    }
+
+    void closeStreams(ifstream& input, ofstream& output)
+    {
+        input.close();
+        output.close();
+    }
+
+    void cleanupEVPContext(EVP_CIPHER_CTX* ctx)
+    {
+        if (ctx)
+        {
+            EVP_CIPHER_CTX_free(ctx);
+        }
+    }
 };
 
 int main()
 {
     return 0;
-}
-
+};
