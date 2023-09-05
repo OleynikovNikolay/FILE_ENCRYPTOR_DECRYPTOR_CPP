@@ -109,8 +109,67 @@ class File
 
     void AES_decrypt(string key)
     {
+        // context validation
+        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+        if (!ctx) {
+            std::cerr << "Failed to create EVP context." << std::endl;
+            return;
+        }
 
+        // conversion to array of pointers
+        const unsigned char* decryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
+
+         // initialisiing encryption and checking if it is successful - if not, clearing memory
+        if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, decryption_key, NULL) != 1) {
+            std::cerr << "Failed to initialize AES decryption." << std::endl;
+            EVP_CIPHER_CTX_free(ctx);
+            return;
+        }
+
+        // creating input and output streams
+        ifstream inputFileStream(input_file, ios::binary);
+        ofstream outputFileStream(output_file, ios::binary);
+
+        // checking if input stream could be created
+        if (!inputFileStream || !outputFileStream) {
+            std::cerr << "Failed to open files!" << std::endl;
+            EVP_CIPHER_CTX_free(ctx);
+            return;
+        }
+
+        unsigned char inBuf[1024];
+        unsigned char outBuf[1024];
+        int bytesRead;
+        int decryptedBytes;
+
+        // reading and decrypting in buffer into out buffer
+        while ((bytesRead = inputFileStream.readsome(reinterpret_cast<char*>(inBuf), sizeof(inBuf)))) {
+            if (EVP_DecryptUpdate(ctx, outBuf, &decryptedBytes, inBuf, bytesRead) != 1) {
+                std::cerr << "Failed to perform AES decryption." << std::endl;
+                EVP_CIPHER_CTX_free(ctx);
+                return;
+            }
+            outputFileStream.write(reinterpret_cast<char*>(outBuf), decryptedBytes);
+        }
+
+        // performing final decryption in outBuf
+        if (EVP_DecryptFinal_ex(ctx, outBuf, &decryptedBytes) != 1) {
+            std::cerr << "Failed to finalize AES decryption." << std::endl;
+            EVP_CIPHER_CTX_free(ctx);
+            return;
+        }
+
+        // converting binary to a set of char pointers and writing it to outputFileStream
+        outputFileStream.write(reinterpret_cast<char*>(outBuf), decryptedBytes);
+
+        // clearing up the memory
+        EVP_CIPHER_CTX_free(ctx);
+
+        // closing off streams
+        inputFileStream.close();
+        outputFileStream.close();
     }
+
 
 };
 
