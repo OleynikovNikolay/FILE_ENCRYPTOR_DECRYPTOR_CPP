@@ -101,7 +101,7 @@ class File
         EVP_CIPHER_CTX_free(ctx);
 
 
-        // closing the streams
+        // closing off the streams
         inputFileStream.close();
         outputFileStream.close();
 
