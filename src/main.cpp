@@ -4,6 +4,7 @@
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
+#include <cstring>
 
 using std::string;
 using std::ifstream;
@@ -18,6 +19,7 @@ public:
     string input_file;
     string output_file;
 
+    // xor encryption and decryption - same bit mixing
     void XOR_encrypt_decrypt(char key)
     {
         ifstream inputFileStream(input_file, ios::binary);
@@ -39,6 +41,7 @@ public:
         closeStreams(inputFileStream, outputFileStream);
     }
 
+    // aes encrypting
     void AES_encrypt(string key)
     {
         EVP_CIPHER_CTX* ctx = createEVPContext(key, true);
@@ -80,11 +83,13 @@ public:
 private:
     static const int bufferSize = 1024;
 
+    // error handler
     void handleError(const string& errorMsg)
     {
         std::cerr << errorMsg << std::endl;
     }
 
+    // EVP_CIPHER_CTX pointer for EVP context creation -> isEncrypt creates dynamic choice of encrypting/decrypting context
     EVP_CIPHER_CTX* createEVPContext(const string& key, bool isEncrypt)
     {
         EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
@@ -97,6 +102,7 @@ private:
         const unsigned char* encryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
         const EVP_CIPHER* cipherType = isEncrypt ? EVP_aes_256_cbc() : EVP_aes_256_cbc();
 
+        // initilising EVP decryption/encryption based on isEncrypt
         if (EVP_CipherInit_ex(ctx, cipherType, nullptr, encryption_key, nullptr, isEncrypt ? 1 : 0) != 1)
         {
             handleError(isEncrypt ? "Failed to initialize AES encryption." : "Failed to initialize AES decryption.");
@@ -107,6 +113,7 @@ private:
         return ctx;
     }
 
+    // encrypting/decrypting files based on EVP_cipher_ctx context
     void processAES(ifstream& input, ofstream& output, EVP_CIPHER_CTX* ctx)
     {
         unsigned char inBuf[bufferSize];
@@ -141,6 +148,7 @@ private:
         output.close();
     }
 
+    // cleaning up pointers
     void cleanupEVPContext(EVP_CIPHER_CTX* ctx)
     {
         if (ctx)
@@ -150,7 +158,44 @@ private:
     }
 };
 
-int main()
+// converting to lower 
+void toLower(char* str)
 {
+    while (*str)
+    {
+        *str = tolower(*str);
+        str++;
+    }
+}
+
+// validating the argv
+bool isValid_argv(int argc, char* argv[])
+{
+  
+    if (argc != 6)
+    {
+        return false;
+    }
+    if(strcmp(argv[1], "-decrypt") != 0 && strcmp(argv[1], "-encrypt") != 0)
+    {
+        return false;
+    }
+
+    if(strcmp(argv[2], "-aes") != 0 && strcmp(argv[2], "-xor") != 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+int main(int argc, char* argv[])
+{
+    // modifying pointer and converting to lower case
+    for (int i = 0; i < argc; ++i)
+    {
+        toLower(argv[i]);
+    }
+
+    bool validity_argv = isValid_argv(argc, argv);
     return 0;
 };
