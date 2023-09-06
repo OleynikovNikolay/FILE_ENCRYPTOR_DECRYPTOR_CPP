@@ -93,6 +93,8 @@ private:
     EVP_CIPHER_CTX* createEVPContext(const string& key, bool isEncrypt)
     {
         EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+
+        // error validation if EVP context could be created
         if (!ctx)
         {
             handleError("Failed to create EVP context.");
@@ -102,7 +104,7 @@ private:
         const unsigned char* encryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
         const EVP_CIPHER* cipherType = isEncrypt ? EVP_aes_256_cbc() : EVP_aes_256_cbc();
 
-        // initilising EVP decryption/encryption based on isEncrypt
+        // initialising EVP decryption/encryption based on isEncrypt
         if (EVP_CipherInit_ex(ctx, cipherType, nullptr, encryption_key, nullptr, isEncrypt ? 1 : 0) != 1)
         {
             handleError(isEncrypt ? "Failed to initialize AES encryption." : "Failed to initialize AES decryption.");
