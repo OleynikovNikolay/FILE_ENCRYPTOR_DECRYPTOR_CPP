@@ -94,7 +94,7 @@ private:
     {
         EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
 
-        // error validation if EVP context could be created
+        // error validation if EVP context git could be created
         if (!ctx)
         {
             handleError("Failed to create EVP context.");
@@ -170,26 +170,26 @@ void toLower(char* str)
     }
 }
 
-// validating the argv
-bool isValid_argv(int argc, char* argv[])
+// validating number of input arguments
+bool isValid_size(int argc)
 {
-  
-    if (argc != 6)
-    {
-        return false;
-    }
-    if(strcmp(argv[1], "-decrypt") != 0 && strcmp(argv[1], "-encrypt") != 0)
-    {
-        return false;
-    }
-
-    if(strcmp(argv[2], "-aes") != 0 && strcmp(argv[2], "-xor") != 0)
-    {
-        return false;
-    }
-    return true;
+    return argc == 6;
 }
 
+// validating decryption/encryption method 
+bool isValid_method(char* argv[])
+{
+    return (strcmp(argv[1], "-aes") == 0 || strcmp(argv[1], "-xor") == 0);
+}
+
+// validating action
+bool isValid_action(char* argv[])
+{
+    return (strcmp(argv[2], "-decrypt") == 0 || strcmp(argv[2], "-encrypt") == 0);
+}
+
+
+// decrypt-encrypt-tool -aes -decrypt -key inputfile outputfile 
 int main(int argc, char* argv[])
 {
     // modifying pointer and converting to lower case
@@ -198,6 +198,26 @@ int main(int argc, char* argv[])
         toLower(argv[i]);
     }
 
-    bool validity_argv = isValid_argv(argc, argv);
+    bool validitySize = isValid_size(argc);
+    bool validityMethod = isValid_method(argv);
+    bool validityAction = isValid_action(argv);
+
+    if (!validitySize)
+    {
+        std::cerr << "Not all arguments are entered." << std::endl;
+        return 1;
+    }
+
+    if (!validityMethod)
+    {
+        std::cerr << "Not valid decryption/encryption method." << std::endl;
+        return 1;
+    }
+
+    if (!validityAction)
+    {
+        std::cerr << "Not valid action." << std::endl;
+        return 1;
+    }
     return 0;
 };
