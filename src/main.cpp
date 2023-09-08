@@ -11,16 +11,16 @@ using std::ifstream;
 using std::ofstream;
 using std::ios;
 
-class File
+class fileCipher
 {
 public:
-    string action;
     string type;
+    string action;
+    string key;
     string input_file;
     string output_file;
 
-    // xor encryption and decryption - same bit mixing
-    void XOR_encrypt_decrypt(char key)
+    void XOR_encrypt_decrypt()
     {
         ifstream inputFileStream(input_file, ios::binary);
         ofstream outputFileStream(output_file, ios::binary);
@@ -32,19 +32,24 @@ public:
         }
 
         char byte;
+        std::size_t keyLength = key.length();
+        std::size_t keyIndex = 0;
+
         while (inputFileStream.get(byte))
         {
-            byte ^= key;
+            byte ^= key[keyIndex];
             outputFileStream.put(byte);
+
+            keyIndex = (keyIndex + 1) % keyLength;
         }
 
         closeStreams(inputFileStream, outputFileStream);
     }
 
     // aes encrypting
-    void AES_encrypt(string key)
+    void AES_encrypt()
     {
-        EVP_CIPHER_CTX* ctx = createEVPContext(key, true);
+        EVP_CIPHER_CTX* ctx = createEVPContext(true);
 
         ifstream inputFileStream(input_file, ios::binary);
         ofstream outputFileStream(output_file, ios::binary);
@@ -61,9 +66,9 @@ public:
         cleanupEVPContext(ctx);
     }
 
-    void AES_decrypt(string key)
+    void AES_decrypt()
     {
-        EVP_CIPHER_CTX* ctx = createEVPContext(key, false);
+        EVP_CIPHER_CTX* ctx = createEVPContext(false);
 
         ifstream inputFileStream(input_file, ios::binary);
         ofstream outputFileStream(output_file, ios::binary);
@@ -90,7 +95,7 @@ private:
     }
 
     // EVP_CIPHER_CTX pointer for EVP context creation -> isEncrypt creates dynamic choice of encrypting/decrypting context
-    EVP_CIPHER_CTX* createEVPContext(const string& key, bool isEncrypt)
+    EVP_CIPHER_CTX* createEVPContext(bool isEncrypt)
     {
         EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
 
@@ -204,20 +209,41 @@ int main(int argc, char* argv[])
 
     if (!validitySize)
     {
-        std::cerr << "Not all arguments are entered." << std::endl;
-        return 1;
+        std::cerr << "Usage: " << argv[0] << " -aes|-xor -decrypt|-encrypt key inputfile outputfile" << std::endl;
+        return EXIT_FAILURE;
     }
 
     if (!validityMethod)
     {
         std::cerr << "Not valid decryption/encryption method." << std::endl;
-        return 1;
+        return EXIT_FAILURE;
     }
 
     if (!validityAction)
     {
         std::cerr << "Not valid action." << std::endl;
-        return 1;
+        return EXIT_FAILURE;
     }
-    return 0;
+    fileCipher fileObject;
+
+    fileObject.type = argv[1];
+    fileObject.action = argv[2];
+    fileObject.key = argv[3];
+    fileObject.input_file = argv[4];
+    fileObject.output_file = argv[5];
+
+    if (fileObject.type == "-aes")
+    {
+        if (fileObject.action == "decrypt")
+        {
+            fileObject.AES_decrypt();
+        } else
+        {
+            fileObject.AES_encrypt();
+        }
+    } else
+    {
+        fileObject.XOR_encrypt_decrypt();
+    }
+    return EXIT_SUCCESS;
 };
