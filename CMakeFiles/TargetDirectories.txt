@@ -1,3 +1,0 @@
-/Users/office/personal_projects/decryption_tool/SecureCrypt-File-Encryption-Decryption-Tool/CMakeFiles/main_executable.dir
-/Users/office/personal_projects/decryption_tool/SecureCrypt-File-Encryption-Decryption-Tool/CMakeFiles/edit_cache.dir
-/Users/office/personal_projects/decryption_tool/SecureCrypt-File-Encryption-Decryption-Tool/CMakeFiles/rebuild_cache.dir
