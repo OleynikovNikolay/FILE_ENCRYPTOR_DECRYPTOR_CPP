@@ -1,5 +1,8 @@
+# ignoring cmake objects
 cmake_install.cmake
 CMakeCache.txt 
 Makefile
 CMakeFiles/
+
+# ignoring .vscode tasks.json
 .vscode/
