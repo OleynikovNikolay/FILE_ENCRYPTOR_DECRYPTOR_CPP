@@ -234,7 +234,7 @@ int main(int argc, char* argv[])
 
     if (fileObject.type == "-aes")
     {
-        if (fileObject.action == "decrypt")
+        if (fileObject.action == "-decrypt")
         {
             fileObject.AES_decrypt();
         } else
