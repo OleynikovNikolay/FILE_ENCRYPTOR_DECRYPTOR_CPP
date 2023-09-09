@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -mmacosx-version-min=12.6 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/main_executable.dir/src/main.cpp.o -o bin/main_executable  /usr/local/lib/libssl.dylib /usr/local/lib/libcrypto.dylib 
