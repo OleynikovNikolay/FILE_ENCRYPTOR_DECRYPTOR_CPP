@@ -138,10 +138,9 @@ private:
             }
             output.write(reinterpret_cast<char*>(outBuf), processedBytes);
         }
-
         if (EVP_CipherFinal_ex(ctx, outBuf, &processedBytes) != 1)
         {
-            handleError("Failed to finalize AES operation.");
+            handleError("Failed to finalize AES operation!");
             cleanupEVPContext(ctx);
             return;
         }
@@ -194,11 +193,11 @@ bool isValid_action(char* argv[])
 }
 
 
-// decrypt-encrypt-tool -aes -decrypt -key inputfile outputfile 
+// decrypt-encrypt-tool -aes -decrypt key inputfile outputfile 
 int main(int argc, char* argv[])
 {
-    // modifying pointer and converting to lower case
-    for (int i = 0; i < argc; ++i)
+    // only first 3 arguments are lowered the key should not be lowered
+    for (int i = 0; i < 2; ++i)
     {
         toLower(argv[i]);
     }
@@ -232,6 +231,7 @@ int main(int argc, char* argv[])
     fileObject.input_file = argv[4];
     fileObject.output_file = argv[5];
 
+    std::cout << fileObject.key << std::endl;
     if (fileObject.type == "-aes")
     {
         if (fileObject.action == "-decrypt")
