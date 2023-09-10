@@ -107,10 +107,11 @@ private:
         }
 
         const unsigned char* encryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
+        const unsigned char* iv = reinterpret_cast<const unsigned char*>(key.c_str());
         const EVP_CIPHER* cipherType = isEncrypt ? EVP_aes_256_cbc() : EVP_aes_256_cbc();
 
         // initialising EVP decryption/encryption based on isEncrypt
-        if (EVP_CipherInit_ex(ctx, cipherType, nullptr, encryption_key, nullptr, isEncrypt ? 1 : 0) != 1)
+        if (EVP_CipherInit_ex(ctx, cipherType, nullptr, encryption_key, iv, isEncrypt ? 1 : 0) != 1)
         {
             handleError(isEncrypt ? "Failed to initialize AES encryption." : "Failed to initialize AES decryption.");
             cleanupEVPContext(ctx);
@@ -121,7 +122,7 @@ private:
     }
 
     // encrypting/decrypting files based on EVP_cipher_ctx context
-    void processAES(ifstream& input, ofstream& output, EVP_CIPHER_CTX* ctx)
+    void processAES(ifstream& input, ofstream& output, EVP_CIPHER_CTX* &ctx)
     {
         unsigned char inBuf[bufferSize];
         unsigned char outBuf[bufferSize];
@@ -133,15 +134,18 @@ private:
             if (EVP_CipherUpdate(ctx, outBuf, &processedBytes, inBuf, bytesRead) != 1)
             {
                 handleError("Failed to perform AES operation.");
-                cleanupEVPContext(ctx);
+                cleanupEVPContext(ctx); 
+                ctx = nullptr;
                 return;
             }
             output.write(reinterpret_cast<char*>(outBuf), processedBytes);
         }
+
         if (EVP_CipherFinal_ex(ctx, outBuf, &processedBytes) != 1)
         {
             handleError("Failed to finalize AES operation!");
             cleanupEVPContext(ctx);
+            ctx = nullptr;
             return;
         }
 
@@ -157,7 +161,7 @@ private:
     // cleaning up pointers
     void cleanupEVPContext(EVP_CIPHER_CTX* ctx)
     {
-        if (ctx)
+        if (ctx != nullptr)
         {
             EVP_CIPHER_CTX_free(ctx);
         }
@@ -231,7 +235,6 @@ int main(int argc, char* argv[])
     fileObject.input_file = argv[4];
     fileObject.output_file = argv[5];
 
-    std::cout << fileObject.key << std::endl;
     if (fileObject.type == "-aes")
     {
         if (fileObject.action == "-decrypt")
