@@ -14,8 +14,10 @@ cd SecureCrypt-File-Encryption-Decryption-Tool
 cmake .
 make
 ```
-3. Change the directory for binary file usage
-`cd bin `
+3. Change directory for binary file path
+```
+cd bin
+```
 
 
 # Usage 
