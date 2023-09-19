@@ -215,7 +215,7 @@ bool isValid_action(char* argv[])
 }
 
 
-// decrypt-encrypt-tool -aes -decrypt key inputfile outputfile 
+// SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL -aes -decrypt "key" "inputfile" "outputfile" 
 int main(int argc, char* argv[])
 {
     // only first 3 arguments are lowered the key should not be lowered
@@ -252,8 +252,6 @@ int main(int argc, char* argv[])
     fileObject.key = argv[3];
     fileObject.input_file = argv[4];
     fileObject.output_file = argv[5];
-
-    std:: cout << fileObject.key << std::endl;
 
     if (fileObject.type == "-aes")
     {

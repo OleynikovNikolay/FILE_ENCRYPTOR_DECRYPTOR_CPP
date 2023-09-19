@@ -6,8 +6,8 @@ find_package(OpenSSL REQUIRED)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_executable(main_executable src/main.cpp)
+add_executable(SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL src/main.cpp)
 
-target_link_libraries(main_executable PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 
