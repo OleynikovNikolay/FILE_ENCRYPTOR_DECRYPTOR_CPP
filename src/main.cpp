@@ -4,6 +4,7 @@
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
+#include <openssl/rand.h>
 #include <cstring>
 
 using std::string;
@@ -60,6 +61,8 @@ public:
             return;
         }
 
+        EVP_CIPHER_CTX_set_padding(ctx, 1); // padding PKCS#7
+
         processAES(inputFileStream, outputFileStream, ctx);
 
         closeStreams(inputFileStream, outputFileStream);
@@ -79,6 +82,8 @@ public:
             return;
         }
 
+        EVP_CIPHER_CTX_set_padding(ctx, 1); // padding PKCS#7
+
         processAES(inputFileStream, outputFileStream, ctx);
 
         closeStreams(inputFileStream, outputFileStream);
@@ -92,6 +97,8 @@ private:
     void handleError(const string& errorMsg)
     {
         std::cerr << errorMsg << std::endl;
+        
+        ERR_print_errors_fp(stderr);
     }
 
     // EVP_CIPHER_CTX pointer for EVP context creation -> isEncrypt creates dynamic choice of encrypting/decrypting context
@@ -107,11 +114,13 @@ private:
         }
 
         const unsigned char* encryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
-        const unsigned char* iv = reinterpret_cast<const unsigned char*>(key.c_str());
         const EVP_CIPHER* cipherType = isEncrypt ? EVP_aes_256_cbc() : EVP_aes_256_cbc();
 
+        // generating static iv
+        const unsigned char static_iv[EVP_MAX_IV_LENGTH] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10 };
+
         // initialising EVP decryption/encryption based on isEncrypt
-        if (EVP_CipherInit_ex(ctx, cipherType, nullptr, encryption_key, iv, isEncrypt ? 1 : 0) != 1)
+        if (EVP_CipherInit_ex(ctx, cipherType, nullptr, encryption_key, static_iv, isEncrypt ? 1 : 0) != 1)
         {
             handleError(isEncrypt ? "Failed to initialize AES encryption." : "Failed to initialize AES decryption.");
             cleanupEVPContext(ctx);
@@ -129,15 +138,24 @@ private:
         int bytesRead;
         int processedBytes;
 
-        while ((bytesRead = input.readsome(reinterpret_cast<char*>(inBuf), sizeof(inBuf))))
+        while (input)
         {
+            input.read(reinterpret_cast<char*>(inBuf), sizeof(inBuf));
+            int bytesRead = input.gcount(); // Get the number of bytes actually read
+
+            if (bytesRead == 0)
+            {
+                break; // End of file
+            }
+
             if (EVP_CipherUpdate(ctx, outBuf, &processedBytes, inBuf, bytesRead) != 1)
             {
                 handleError("Failed to perform AES operation.");
-                cleanupEVPContext(ctx); 
+                cleanupEVPContext(ctx);
                 ctx = nullptr;
                 return;
             }
+
             output.write(reinterpret_cast<char*>(outBuf), processedBytes);
         }
 
@@ -234,6 +252,8 @@ int main(int argc, char* argv[])
     fileObject.key = argv[3];
     fileObject.input_file = argv[4];
     fileObject.output_file = argv[5];
+
+    std:: cout << fileObject.key << std::endl;
 
     if (fileObject.type == "-aes")
     {
