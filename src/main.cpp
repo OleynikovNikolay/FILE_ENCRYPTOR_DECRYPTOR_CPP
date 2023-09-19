@@ -141,11 +141,11 @@ private:
         while (input)
         {
             input.read(reinterpret_cast<char*>(inBuf), sizeof(inBuf));
-            int bytesRead = input.gcount(); // Get the number of bytes actually read
+            int bytesRead = input.gcount();
 
             if (bytesRead == 0)
             {
-                break; // End of file
+                break;
             }
 
             if (EVP_CipherUpdate(ctx, outBuf, &processedBytes, inBuf, bytesRead) != 1)
