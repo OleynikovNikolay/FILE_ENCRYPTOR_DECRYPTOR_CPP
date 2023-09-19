@@ -1,6 +1,6 @@
 # SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL
 
-This is CLI application allowing users to use two different encrypting algorithms {AES (256 - CBC), XOR} for encrypting their files. 
+This is CLI application allowing users to use two different encrypting algorithms: `AES (256 - CBC)`, `XOR` for encrypting/decrypting their files. 
 
 
 # Installation
