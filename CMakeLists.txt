@@ -6,7 +6,10 @@ find_package(OpenSSL REQUIRED)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_executable(SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL src/main.cpp)
+add_executable(SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL 
+                    src/main.cpp
+                    src/fileCipher.cpp
+                    src/command_handlers.cpp)
 
 target_include_directories(SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL PRIVATE ${CMAKE_SOURCE_DIR}/include)
 

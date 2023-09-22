@@ -1,5 +1,5 @@
 /*
-This header declares utility functions used in code
+This header declares small inline utility functions.
 */
 
 #include <cstring>
