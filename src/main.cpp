@@ -1,6 +1,5 @@
 
 #include "../include/utils.h"
-#include "../include/fileCipher.h"
 #include "../include/fileCipher.cpp"
 #include <string>
 
