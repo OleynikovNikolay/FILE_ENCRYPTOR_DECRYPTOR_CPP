@@ -21,10 +21,21 @@ cd bin
 
 
 # Usage 
+## Navigation Page
+```
+./SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL -help
+```
+
+## Random AES256 key generation
+```
+./SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL -generate-aes256-key
+```
+
+## File decryption/encryption
 ```
 ./SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL -aes|-xor -encrypt|-decrypt "key" "inputFilePath" "outputFilePath" 
 ```
-When using AES ensure that the encryption key is 256 bits long.
+When using AES ensure that the encryption key is 256 bits long. You may use `-generate-aes256-key` command.
 
 # License 
 MIT License 
