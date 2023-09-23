@@ -33,6 +33,7 @@ void executeFileCipher(int argc, char* argv[])
     bool validitySize = isValid_size(argc);
     bool validityMethod = isValid_method(argv);
     bool validityAction = isValid_action(argv);
+    bool validityKey = isValid_key(argv);
 
     if (!validitySize)
     {
@@ -49,6 +50,12 @@ void executeFileCipher(int argc, char* argv[])
     if (!validityAction)
     {
         std::cerr << "Not valid action." << std::endl;
+        return;
+    }
+
+    if(!validityKey)
+    {
+        std::cerr << "Not valid AES256 key: use -generate-aes256-key to generate valid key." << std::endl;
         return;
     }
 

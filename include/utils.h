@@ -37,4 +37,15 @@ inline bool isValid_action(char* argv[])
     return (strcmp(argv[2], "-decrypt") == 0 || strcmp(argv[2], "-encrypt") == 0);
 }
 
+// key validation 
+inline bool isValid_key(char* argv[])
+{
+    if (strcmp(argv[1], "-aes") == 0)
+    {
+        std::string key = argv[3];
+        return key.size() == 64 && std::all_of(key.begin(), key.end(), ::isxdigit);
+    }
+    return true;
+}
+
 #endif //SECURE_CRYPT_UTILS_H
