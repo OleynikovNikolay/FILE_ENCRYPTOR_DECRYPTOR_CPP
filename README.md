@@ -30,12 +30,13 @@ cd bin
 ```
 ./SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL -generate-aes256-key
 ```
+Key generated is hexadecimal representation of 32 bytes key. 
 
 ## File decryption/encryption
 ```
 ./SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL -aes|-xor -encrypt|-decrypt "key" "inputFilePath" "outputFilePath" 
 ```
-When using AES ensure that the encryption key is 256 bits long. You may use `-generate-aes256-key` command.
+When using AES ensure that the encryption key is hexadecimal (64 bytes) representation of 32 bytes key. You may use `-generate-aes256-key` command.
 
 # License 
 MIT License 
