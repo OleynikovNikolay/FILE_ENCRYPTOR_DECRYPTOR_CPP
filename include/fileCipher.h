@@ -16,6 +16,12 @@ This header declares fileCipher class, its attributes and its methods.
 class fileCipher
 {
 public:
+    std::string type;
+    std::string action;
+    std::string key;
+    std::string input_file;
+    std::string output_file;
+
     fileCipher(const std::string& type, const std::string& action, const std::string& key, const std::string& input_file, const std::string& output_file);
 
     // xor encryption/decryption
@@ -27,27 +33,8 @@ public:
     // aes decryption
     void AES_decrypt();
 
-    // setters
-    void setType(std::string new_type);
-    void setAction(std::string new_action);
-    void setKey(std::string new_key);
-    void setInputFile(std::string new_input_file);
-    void setOutputFile(std::string new_output_file);
-
-    // getters
-    std::string getType();
-    std::string getAction();
-    std::string getKey();
-    std::string getInputFile();
-    std::string getOutputFile();
-
 private:
     static const int bufferSize = 1024;
-    std::string type;
-    std::string action;
-    std::string key;
-    std::string input_file;
-    std::string output_file;
 
     // error handler
     void handleError(const std::string& errorMsg);

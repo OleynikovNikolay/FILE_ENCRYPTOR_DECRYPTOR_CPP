@@ -11,61 +11,10 @@ This cpp defines the implementation of fileCipher class.
 #include <openssl/rand.h>
 #include <cstring>
 #include "../include/fileCipher.h"
+#include "../include/utils.h"
 
 fileCipher::fileCipher(const std::string& type, const std::string& action, const std::string& key, const std::string& input_file, const std::string& output_file)
     : type(type), action(action), key(key), input_file(input_file), output_file(output_file) {
-}
-
-// setters
-void fileCipher::setType(std::string new_type)
-{
-    type = new_type;
-}
-
-void fileCipher::setAction(std::string new_action)
-{
-    action = new_action;
-}
-
-void fileCipher::setKey(std::string new_key)
-{
-    key = new_key;
-}
-
-void fileCipher::setInputFile(std::string new_input_file)
-{
-    input_file = new_input_file;
-}
-
-void fileCipher::setOutputFile(std::string new_output_file)
-{
-    output_file = new_output_file;
-}
-
-// getters
-std::string fileCipher::getType()
-{
-    return type;
-}
-
-std::string fileCipher::getAction()
-{
-    return action;
-}
-
-std::string fileCipher::getKey()
-{
-    return key;
-}
-
-std::string fileCipher::getInputFile()
-{
-    return input_file;
-}
-
-std::string fileCipher::getOutputFile()
-{
-    return output_file;
 }
 
 void fileCipher::XOR_encrypt_decrypt()
@@ -158,7 +107,9 @@ EVP_CIPHER_CTX* fileCipher::createEVPContext(bool isEncrypt)
         return nullptr;
     }
 
-    const unsigned char* encryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
+    //const unsigned char* encryption_key = reinterpret_cast<const unsigned char*>(key.c_str());
+    const unsigned char* encryption_key = hexStringToKey(key);
+    
     const EVP_CIPHER* cipherType = isEncrypt ? EVP_aes_256_cbc() : EVP_aes_256_cbc();
 
     // generating static iv

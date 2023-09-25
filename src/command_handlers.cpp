@@ -17,7 +17,7 @@ void showHelp()
     std::cout << "                                Usage: -help" << std::endl;
     std::cout << "  -aes|-xor                     Decrypts/encrypts the file." << std::endl;
     std::cout << "                                Usage: -aes|-xor -decrypt|-encrypt key inputfile outputfile" << std::endl;
-    std::cout << "  -generate-aes256-key          Generates a random AES256-size key." << std::endl;
+    std::cout << "  -generate-aes256-key          Generates a random AES256-size key (hexadecimal - 64 bytes for 32 bytes key)." << std::endl;
     std::cout << "                                Usage: -generate-aes256-key" << std::endl;
 }
 
@@ -61,15 +61,15 @@ void executeFileCipher(int argc, char* argv[])
 
     std::string type = argv[1];
     std::string action = argv[2];
-    std::string key = argv[3]; 
+    std::string key = argv[3];
     std::string input_file = argv[4];
     std::string output_file = argv[5];
 
     fileCipher fileObject(type, action, key, input_file, output_file);
 
-    if (fileObject.getType() == "-aes")
+    if (fileObject.type == "-aes")
     {
-        if (fileObject.getAction() == "-decrypt")
+        if (fileObject.action == "-decrypt")
         {
             fileObject.AES_decrypt();
         } else
@@ -94,11 +94,8 @@ void generateAES256Key()
         return;
     }
 
-    std::stringstream ss;
-    for (int i = 0; i < keySize; ++i) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(key[i]);
-    }
+    std::string hexaString = keyToHexString(key, keySize);
 
-    std::cout << "Random AES 256 key has been generated:" << std::endl;
-    std::cout << ss.str() << std::endl;
+    std::cout << "Hexadecimal presentation (64 bytes) of random AES 256 key (32 bytes) has been generated:" << std::endl;
+    std::cout << hexaString << std::endl;
 }
