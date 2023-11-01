@@ -1,6 +1,7 @@
-#include "../include/command_handlers.h"
+#include "../include/commandHandlers.h"
 #include "../include/utils.h"
 #include "../include/fileCipher.h"
+#include "../include/exceptions.h"
 #include <string>
 #include <iostream>
 
@@ -17,21 +18,27 @@ int main(int argc, char* argv[])
     toLower(argv[1]);
     std::string command = argv[1];
 
-    if (command == "-help")
-    {
+    if (command == "-help"){
         showHelp();
-    } else if (command == "-aes" || command == "-xor")
-    {
-        executeFileCipher(argc, argv);
-    } else if (command == "-generate-aes256-key")
-    {
+    } else if (command == "-aes" || command == "-xor"){
+        try{
+            executeFileCipher(argc, argv);
+        } catch (SizeException& ex){
+            std::cerr << ex.what() << std::endl;
+        } catch (MethodException& ex){
+            std::cerr << ex.what() << std::endl;
+        } catch (ActionException& ex){
+            std::cerr << ex.what() << std::endl;
+        } catch (KeyException& ex){
+            std::cerr << ex.what() << std::endl;
+        }
+    } else if (command == "-generate-aes256-key"){
         generateAES256Key();
-    } else 
-    {
+    } else {
         std::cerr << "Unknown command: " << command << std::endl;
         return EXIT_FAILURE;
     }
 
-  
     return EXIT_SUCCESS;
 };
+

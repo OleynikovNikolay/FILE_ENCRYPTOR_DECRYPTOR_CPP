@@ -21,7 +21,6 @@ inline void toLower(char* str)
     }
 }
 
-
 // validating number of input arguments
 inline bool isValid_size(int argc)
 {
@@ -50,6 +49,7 @@ inline bool isValid_key(char* argv[])
     }
     return true;
 }
+
 
 // converting hexadecimal 64 bytes to 32 bytes key
 inline const unsigned char* hexStringToKey(const std::string& hexString) {

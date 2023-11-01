@@ -5,6 +5,8 @@
 #include <iostream>
 #include "../include/utils.h"
 #include "../include/fileCipher.h"
+#include "../include/exceptions.h"
+#include "../include/cipherValidation.h"
 
 
 
@@ -22,42 +24,14 @@ void showHelp()
 }
 
 // processing files for encryption/decryption
-void executeFileCipher(int argc, char* argv[])
-{
+void executeFileCipher(int argc, char* argv[]){
     // only first 3 arguments are lowered the key should not be lowered
     for (int i = 0; i < 2; ++i)
     {
         toLower(argv[i]);
     }
 
-    bool validitySize = isValid_size(argc);
-    bool validityMethod = isValid_method(argv);
-    bool validityAction = isValid_action(argv);
-    bool validityKey = isValid_key(argv);
-
-    if (!validitySize)
-    {
-        std::cerr << "Usage: " << argv[0] << " -aes|-xor -decrypt|-encrypt key inputfile outputfile" << std::endl;
-        return;
-    }
-
-    if (!validityMethod)
-    {
-        std::cerr << "Not valid decryption/encryption method." << std::endl;
-        return;
-    }
-
-    if (!validityAction)
-    {
-        std::cerr << "Not valid action." << std::endl;
-        return;
-    }
-
-    if(!validityKey)
-    {
-        std::cerr << "Not valid AES256 key: use -generate-aes256-key to generate valid key." << std::endl;
-        return;
-    }
+    validateCipher(argc, argv);
 
     std::string type = argv[1];
     std::string action = argv[2];
@@ -81,6 +55,7 @@ void executeFileCipher(int argc, char* argv[])
         fileObject.XOR_encrypt_decrypt();
     }
 }
+
 
 
 // generating random aes256 key 
