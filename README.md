@@ -4,6 +4,7 @@ This is CLI application allowing users to use two different encrypting algorithm
 
 
 # Installation
+## CMake MacOS (ARM 64)
 1. Clone the repo
 ```
 git clone https://github.com/OleynikovNikolay/SecureCrypt-File-Encryption-Decryption-Tool
