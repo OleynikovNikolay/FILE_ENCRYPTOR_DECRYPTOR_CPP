@@ -7,6 +7,7 @@ This header declares small inline utility functions.
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 #ifndef SECURE_CRYPT_UTILS_H
 #define SECURE_CRYPT_UTILS_H
