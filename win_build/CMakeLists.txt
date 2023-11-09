@@ -5,10 +5,11 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Specify the location of OpenSSL and Mingw-w64 toolchain
-set(OPENSSL_ROOT_DIR "/opt/homebrew/Cellar/openssl@3/3.1.4")
+set(OPENSSL_ROOT_DIR ${CMAKE_SOURCE_DIR}/../lib)
 set(CMAKE_FIND_ROOT_PATH
     "/opt/homebrew/Cellar/mingw-w64/11.0.1/toolchain-x86_64/x86_64-w64-mingw32/bin"
 )
+
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 
 # Project setup
@@ -16,17 +17,17 @@ set(EXE_NAME SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL)
 set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
 set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
 
-project(SECURECRYPT-FILE-ENCRYPTION-DECRYPTION-TOOL VERSION 1.0)
+project(${EXE_NAME} VERSION 1.0)
 
 # Set the output directory for the Windows executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin/win)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin/win)
 
 # Define your source files
 set(SOURCE_FILES
-    ../src/cipherValidation.cpp
-    ../src/commandHandlers.cpp
-    ../src/fileCipher.cpp
-    ../src/main.cpp
+    ${CMAKE_SOURCE_DIR}/../src/cipherValidation.cpp
+    ${CMAKE_SOURCE_DIR}/../src/commandHandlers.cpp
+    ${CMAKE_SOURCE_DIR}/../src/fileCipher.cpp
+    ${CMAKE_SOURCE_DIR}/../src/main.cpp
 )
 
 # Create the executable
@@ -42,7 +43,7 @@ set_target_properties(${EXE_NAME} PROPERTIES
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 
 # Find and link with OpenSSL
-find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
+find_package(OpenSSL REQUIRED)
 
 # Check if OpenSSL was found
 if(OPENSSL_FOUND)
@@ -53,4 +54,4 @@ else()
 endif()
 
 # Include directories
-target_include_directories(${EXE_NAME} PRIVATE ../include)
+target_include_directories(${EXE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/../include)
