@@ -48,7 +48,7 @@ find_package(OpenSSL REQUIRED)
 
 if(OPENSSL_FOUND)
     include_directories(${CMAKE_SOURCE_DIR}/../lib)
-    link_directories(${OPENSSL_INSTALL_DIR}/lib)
+    link_directories(${CMAKE_SOURCE_DIR}/../lib)
     target_link_libraries(${EXE_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 else()
     message(FATAL_ERROR "OpenSSL not found. Ensure OpenSSL is correctly installed and specified in OPENSSL_ROOT_DIR.")
