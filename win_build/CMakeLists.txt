@@ -46,6 +46,7 @@ target_include_directories(${EXE_NAME} PRIVATE
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -L/Users/nik/lib/openssl -lcrypto -lssl -I/Users/nik/lib/openssl/include/openssl/ -static")
 
 set(OPENSSL_ROOT_DIR "/Users/nik/lib/openssl")
+set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 
 target_link_libraries(${EXE_NAME} PRIVATE
