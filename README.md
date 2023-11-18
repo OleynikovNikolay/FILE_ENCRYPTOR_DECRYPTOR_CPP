@@ -19,7 +19,21 @@ make
 ```
 cd bin
 ```
-
+## Windows (64bit)
+1. Clone the repo
+```
+git clone https://github.com/OleynikovNikolay/SecureCrypt-File-Encryption-Decryption-Tool
+cd SecureCrypt-File-Encryption-Decryption-Tool
+```
+2. Navigate to .exe
+``` 
+cd bin
+cd win
+```
+3. Call executable
+```
+SecureCrypt-File-Encryption-Decryption-Tool.exe
+```
 
 # Usage 
 ## Navigation Page
